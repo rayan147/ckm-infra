@@ -6,7 +6,7 @@ metadata:
 spec:
   description: Project for platform operators
   sourceRepos:
-    - "*"
+    - "https://github.com/rayan147/ckm-infra.git"
   destinations:
     - namespace: postgres-operator
       server: https://kubernetes.default.svc
