@@ -1,0 +1,15 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: operators
+  namespace: argocd
+spec:
+  description: Project for platform operators
+  sourceRepos:
+    - "*"
+  destinations:
+    - namespace: postgres-operator
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: "*"
+      kind: "*"

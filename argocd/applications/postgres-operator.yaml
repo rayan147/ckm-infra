@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: postgres-operator
+  namespace: argocd
+spec:
+  project: operators
+  source:
+    repoURL: https://github.com/rayan147/ckm-infra.git
+    targetRevision: HEAD
+    path: operators/postgres-operator/overlays/dev
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: postgres-operator
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
