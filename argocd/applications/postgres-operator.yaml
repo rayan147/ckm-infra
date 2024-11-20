@@ -1,10 +1,11 @@
+# argocd/applications/postgres-operator.yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: postgres-operator
   namespace: argocd
 spec:
-  project: operators
+  project: default
   source:
     repoURL: https://github.com/rayan147/ckm-infra.git
     targetRevision: HEAD
@@ -17,4 +18,9 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
-      - CreateNamespace=true
+      - CreateNamespace=true # This ensures namespace creation
+  ignoreDifferences:
+    - group: acid.zalan.do
+      kind: postgresql
+      jsonPointers:
+        - /spec
