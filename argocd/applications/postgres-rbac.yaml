@@ -1,17 +1,14 @@
-# argocd/applications/postgres-operator.yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: postgres-operator
+  name: postgres-rbac
   namespace: argocd
-  annotations:
-    argocd.argoproj.io/sync-wave: 2
 spec:
   project: default
   source:
     repoURL: https://github.com/rayan147/ckm-infra.git
     targetRevision: HEAD
-    path: operators/postgres-operator/overlays/dev
+    path: operators/postgres-operator/base/rbac
   destination:
     server: https://kubernetes.default.svc
     namespace: postgres-operator
@@ -20,7 +17,4 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
-      - CreateNamespace=true # This ensures namespace creation
-  dependencies:
-    - name: postgres-crds
-    - name: postgres-rbac
+      - CreateNamespace=true
