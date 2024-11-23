@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-config
+  namespace: ckm
+data:
+  NODE_ENV: "production"
+  PORT: "3000"
+  CORS_ORIGIN: "http://localhost:5175"
+  AWS_REGION: "us-east-1"
+  PINPOINT_FROM_EMAIL: "rayan361@gmail.com"
+  RECIPE_IMAGES_BUCKET: "ckm-recipe-images-bucket"
+  PINPOINT_PROJECT_ID: "32ad1b1cebe24da0b3597aebe1362472"
+  PINPOINT_SMS_SENDER_ID: ""
+  SMS_POOL_ORIGINATION_NUMBER: ""
+  KMS_CUSTOMER_KEY: "f856f267-97d5-485b-bf34-385b93cd9c6c"
+  AWS_SECRETS_NAME: "env.prod"

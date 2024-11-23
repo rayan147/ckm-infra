@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: api
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/rayan147/ckm-infra.git
+    targetRevision: HEAD
+    path: operators/api/base
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: ckm
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+  dependencies:
+    - name: aws-secrets-provider
