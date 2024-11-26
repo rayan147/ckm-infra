@@ -27,11 +27,11 @@ spec:
           imagePullPolicy: Always
           resources:
             requests:
-              cpu: 100m
-              memory: 200Mi
+              cpu: 500MiB
+              memory: 300MiB
             limits:
-              cpu: 200m
-              memory: 300Mi
+              cpu: 800MiB
+              memory: 500MiB
           ports:
             - containerPort: 3000
               name: http
@@ -46,7 +46,7 @@ spec:
             periodSeconds: 10
           readinessProbe:
             httpGet:
-              path: /health
+              path: /ready
               port: 3000
             initialDelaySeconds: 5
             timeoutSeconds: 2
