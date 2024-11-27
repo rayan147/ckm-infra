@@ -13,6 +13,7 @@ spec:
       labels:
         app: tailscale
     spec:
+      serviceAccountName: tailscale
       containers:
         - name: tailscale
           image: tailscale/tailscale:latest

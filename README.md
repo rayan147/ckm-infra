@@ -141,6 +141,21 @@ argocd app create api \
   --sync-policy automated \
   --sync-option CreateNamespace=true
 
+# Create Tailscale application in ArgoCD
+argocd app create tailscale \
+  --repo https://github.com/rayan147/ckm-infra.git \
+  --path operators/tailscale/base \
+  --dest-server https://kubernetes.default.svc \
+  --dest-namespace tailscale \
+  --sync-policy automated \
+  --sync-option CreateNamespace=true
+
+# Wait for the application to sync
+argocd app wait tailscale
+
+# Check the status
+argocd app get tailscale
+
 ```
 
 ## Security Components
