@@ -14,19 +14,19 @@ metadata:
 rules:
   - apiGroups: [""]
     resources: ["secrets"]
-    resourceNames: ["taildcale-auth"]
+    resourceNames: ["tailscale-auth"]
     verbs: ["get", "update"]
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: taildcale
-  namespace: taildcale
+  name: tailscale
+  namespace: tailscale
 subjects:
   - kind: ServiceAccount
     name: taildcale
 roleRef:
   kind: Role
-  name: taildcale
+  name: tailscale
   apiGroup: rbac.authorization.k8s.io/v1
