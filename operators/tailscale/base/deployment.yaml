@@ -4,7 +4,7 @@ metadata:
   name: tailscale
   namespace: tailscale
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: tailscale
@@ -17,9 +17,6 @@ spec:
       containers:
         - name: tailscale
           image: tailscale/tailscale:latest
-          args:
-            - tailscaled
-            - "--advertise-routes=10.0.0.0/24"
           securityContext:
             capabilities:
               add:
@@ -39,6 +36,8 @@ spec:
               value: "true"
             - name: TS_STATE_DIR
               value: "/var/lib/tailscale"
+            - name: TS_ADVERTISE_ROUTES
+              value: "10.0.0.0/24"
           volumeMounts:
             - name: devnet
               mountPath: /dev/net/tun
