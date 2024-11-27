@@ -17,6 +17,9 @@ spec:
       containers:
         - name: tailscale
           image: tailscale/tailscale:latest
+          args:
+            - tailscaled
+            - "--advertise-routes=10.0.0.0/24"
           securityContext:
             capabilities:
               add:
