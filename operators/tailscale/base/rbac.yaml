@@ -1,22 +1,20 @@
+# operators/tailscale/base/rbac.yaml
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: tailscale
   namespace: tailscale
-
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: tailscale
   namespace: tailscale
-
 rules:
   - apiGroups: [""]
     resources: ["secrets"]
     resourceNames: ["tailscale-auth"]
     verbs: ["get", "update"]
-
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -26,7 +24,8 @@ metadata:
 subjects:
   - kind: ServiceAccount
     name: tailscale
+    namespace: tailscale
 roleRef:
   kind: Role
   name: tailscale
-  apiGroup: rbac.authorization.k8s.io/v1
+  apiGroup: rbac.authorization.k8s.io
