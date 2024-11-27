@@ -1,0 +1,67 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: homepage
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://jameswynn.github.io/helm-charts
+    targetRevision: 2.0.1
+    chart: homepage
+    helm:
+      values: |
+        service:
+          type: LoadBalancer
+          ports:
+            - name: http
+              port: 80
+              targetPort: 3000
+              protocol: TCP
+        ingress:
+          main:
+            enabled: false
+        serviceAccount:
+          create: true
+        enableRbac: true
+        config:
+          services:
+            - Infrastructure:
+                - ArgoCD:
+                    icon: argocd.png
+                    href: https://10.0.0.30 
+                    description: GitOps CD
+                - MinIO S3:
+                    icon: minio.png
+                    href: https://10.0.0.32
+                    description: S3 API Endpoint
+            - Monitoring:
+                - Grafana:
+                    icon: grafana.png
+                    href: http://10.0.0.24:32178
+                    description: Metrics Dashboard
+                - Prometheus:
+                    icon: prometheus.png
+                    href: http://10.0.0.24:30517
+                    description: Time Series DB
+          widgets:
+            - kubernetes:
+                cluster:
+                  show: true
+                  cpu: true
+                  memory: true
+                nodes:
+                  show: true
+                  cpu: true
+                  memory: true
+          kubernetes:
+            mode: cluster
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
