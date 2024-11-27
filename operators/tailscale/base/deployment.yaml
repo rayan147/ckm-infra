@@ -34,10 +34,16 @@ spec:
               value: "false"
             - name: TS_AUTH_ONCE
               value: "true"
+            - name: TS_STATE_DIR
+              value: "/var/lib/tailscale"
           volumeMounts:
             - name: devnet
               mountPath: /dev/net/tun
+            - name: varlib
+              mountPath: /var/lib
       volumes:
         - name: devnet
           hostPath:
             path: /dev/net/tun
+        - name: varlib
+          emptyDir: {}
