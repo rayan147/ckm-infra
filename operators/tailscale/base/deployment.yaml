@@ -18,6 +18,7 @@ spec:
         - name: tailscale
           image: tailscale/tailscale:latest
           securityContext:
+            privileged: true # Required for enabling IP forwarding
             capabilities:
               add:
                 - NET_ADMIN
@@ -36,8 +37,27 @@ spec:
               value: "true"
             - name: TS_STATE_DIR
               value: "/var/lib/tailscale"
-            - name: TS_ADVERTISE_ROUTES
-              value: "10.0.0.0/24"
+          command:
+            - sh
+            - -c
+            - |
+              # Enable IP forwarding
+              sysctl -w net.ipv4.ip_forward=1
+              sysctl -w net.ipv6.conf.all.forwarding=1
+
+              # Disable GRO for optimal forwarding performance
+              ethtool -K eth0 gro off
+
+              # Start tailscaled
+              tailscaled &
+
+              # Advertise routes and bring Tailscale up
+              tailscale up \
+                --advertise-routes=10.0.0.0/24 \
+                --accept-dns=true
+
+              # Keep the container running
+              tail -f /dev/null
           volumeMounts:
             - name: devnet
               mountPath: /dev/net/tun
