@@ -23,6 +23,11 @@ spec:
                 - NET_ADMIN
                 - SYS_MODULE
           env:
+            - name: TS_AUTHKEY
+              valueFrom:
+                secretKeyRef:
+                  name: tailscale-auth
+                  key: TS_AUTHKEY
             - name: TS_KUBE_SECRET
               value: "tailscale-auth"
             - name: TS_USERSPACE
