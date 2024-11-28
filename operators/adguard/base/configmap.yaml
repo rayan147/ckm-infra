@@ -9,14 +9,14 @@ metadata:
     app.kubernetes.io/instance: adguard
 data:
   AdGuardHome.yaml: |
-    bind_host: 0.0.0.0
+    bind_host: 10.0.0.34
     bind_port: 3000
     beta_bind_port: 0
     users: []  # Move users to secret
     language: "en"
     theme: "auto"
     dns:
-      bind_host: 0.0.0.0
+      bind_host: 10.0.0.34
       port: 53
       listen_addrs:
         - 10.0.0.34  # LoadBalancer IP
