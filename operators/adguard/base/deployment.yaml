@@ -21,16 +21,21 @@ spec:
     spec:
       securityContext:
         fsGroup: 1000
+      initContainers:
+        - name: init-config
+          image: busybox
+          command:
+            ["sh", "-c", "cp /tmp/AdGuardHome.yaml /opt/adguardhome/conf/"]
+          volumeMounts:
+            - name: config-template
+              mountPath: /tmp/AdGuardHome.yaml
+              subPath: AdGuardHome.yaml
+            - name: adguard-config
+              mountPath: /opt/adguardhome/conf
       containers:
         - name: adguard-home
           image: adguard/adguardhome:latest
           imagePullPolicy: IfNotPresent
-          env:
-            - name: AGH_CONFIG
-              valueFrom:
-                configMapKeyRef:
-                  name: adguard-config
-                  key: AdGuardHome.yaml
           ports:
             - containerPort: 53
               name: dns-udp
@@ -52,11 +57,14 @@ spec:
               memory: "256Mi"
               cpu: "500m"
           securityContext:
-            readOnlyRootFilesystem: false # Changed to false to allow writes
-            runAsNonRoot: true
-            runAsUser: 1000
+            readOnlyRootFilesystem: false
+            runAsNonRoot: false
+            runAsUser: 0
             capabilities:
-              add: ["NET_BIND_SERVICE"] # Added for DNS port binding
+              add:
+                - NET_BIND_SERVICE
+                - SYS_CHROOT
+                - NET_RAW
               drop:
                 - ALL
           livenessProbe:
@@ -71,7 +79,7 @@ spec:
             - name: adguard-config
               mountPath: /opt/adguardhome/conf
             - name: tmp
-              mountPath: /tmp # Added for temporary files
+              mountPath: /tmp
           readinessProbe:
             httpGet:
               path: /
@@ -83,6 +91,9 @@ spec:
           persistentVolumeClaim:
             claimName: adguard-pvc
         - name: adguard-config
-          emptyDir: {} # Changed from configMap to emptyDir
+          emptyDir: {}
+        - name: config-template
+          configMap:
+            name: adguard-config
         - name: tmp
-          emptyDir: {} # Added for temporary files
+          emptyDir: {}
