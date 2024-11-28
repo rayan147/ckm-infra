@@ -52,9 +52,9 @@ spec:
               memory: "256Mi"
               cpu: "500m"
           securityContext:
-            readOnlyRootFilesystem: true
-            runAsNonRoot: true
-            runAsUser: 1000
+            readOnlyRootFilesystem: true # Keep as true if possible
+            runAsNonRoot: false # Allow running as root
+            runAsUser: 0 # Run as root user
             capabilities:
               drop:
                 - ALL
