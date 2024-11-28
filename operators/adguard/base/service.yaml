@@ -5,12 +5,9 @@ metadata:
   namespace: adguard
   labels:
     app: adguard
-  annotations:
-  promethues.io/scrape: "true"
-  promethues.io/port: "30517"
 spec:
   selector:
-    app: adguard-home
+    app: adguard
   type: LoadBalancer
   externalTrafficPolicy: Local
   ports:
@@ -30,5 +27,3 @@ spec:
       protocol: TCP
       port: 53
       targetPort: 53
----
-
