@@ -52,10 +52,12 @@ spec:
               memory: "256Mi"
               cpu: "500m"
           securityContext:
-            readOnlyRootFilesystem: true
-            runAsNonRoot: true
-            runAsUser: 1000
+            readOnlyRootFilesystem: false
+            runAsNonRoot: false
+            runAsUser: 0
             capabilities:
+              add:
+                - NET_BIND_SERVICE
               drop:
                 - ALL
           livenessProbe:
