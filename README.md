@@ -156,6 +156,15 @@ argocd app wait tailscale
 # Check the status
 argocd app get tailscale
 
+argocd app create adguard \
+  --repo https://github.com/rayan147/ckm-infra.git \
+  --path operators/adguard/base \
+  --dest-server https://kubernetes.default.svc \
+  --dest-namespace adguard \
+  --sync-policy automated \
+  --sync-option CreateNamespace=true
+  
+
 ```
 
 ## Security Components
