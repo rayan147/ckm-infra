@@ -86,6 +86,8 @@ spec:
               mountPath: /etc/localtime
             - name: adguard-data
               mountPath: /opt/adguardhome/work
+            - name: adguard-config
+              mountPath: /opt/adguardhome/conf
       volumes:
         - name: localtime
           hostPath:
@@ -93,6 +95,9 @@ spec:
         - name: adguard-data
           persistentVolumeClaim:
             claimName: adguard-pvc
+        - name: adguard-config
+          configMap:
+            name: adguard
       restartPolicy: Always
 ---
 
