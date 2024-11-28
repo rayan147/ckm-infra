@@ -4,7 +4,7 @@ metadata:
   name: adguard-home
   namespace: adguard
   labels:
-    app: adguard-home
+    app: adguard
   annotations:
   promethues.io/scrape: "true"
   promethues.io/port: "30517"
