@@ -5,8 +5,6 @@ metadata:
   namespace: adguard
   labels:
     app: adguard
-    app.kubernetes.io/name: adguard
-    app.kubernetes.io/instance: adguard
 spec:
   replicas: 1
   strategy:
@@ -21,21 +19,16 @@ spec:
     spec:
       securityContext:
         fsGroup: 1000
-      initContainers:
-        - name: init-config
-          image: busybox
-          command:
-            ["sh", "-c", "cp /tmp/AdGuardHome.yaml /opt/adguardhome/conf/"]
-          volumeMounts:
-            - name: config-template
-              mountPath: /tmp/AdGuardHome.yaml
-              subPath: AdGuardHome.yaml
-            - name: adguard-config
-              mountPath: /opt/adguardhome/conf
       containers:
         - name: adguard-home
           image: adguard/adguardhome:latest
           imagePullPolicy: IfNotPresent
+          env:
+            - name: AGH_CONFIG
+              valueFrom:
+                configMapKeyRef:
+                  name: adguard-config
+                  key: AdGuardHome.yaml
           ports:
             - containerPort: 53
               name: dns-udp
@@ -57,11 +50,11 @@ spec:
               memory: "256Mi"
               cpu: "500m"
           securityContext:
-            readOnlyRootFilesystem: false
-            runAsNonRoot: false
-            runAsUser: 0
+            readOnlyRootFilesystem: false # Changed to false
+            runAsNonRoot: false # Changed to false
+            runAsUser: 0 # Changed to 0
             capabilities:
-              add:
+              add: # Added capabilities
                 - NET_BIND_SERVICE
                 - SYS_CHROOT
                 - NET_RAW
@@ -76,8 +69,6 @@ spec:
           volumeMounts:
             - name: adguard-data
               mountPath: /opt/adguardhome/work
-            - name: adguard-config
-              mountPath: /opt/adguardhome/conf
             - name: tmp
               mountPath: /tmp
           readinessProbe:
@@ -90,10 +81,5 @@ spec:
         - name: adguard-data
           persistentVolumeClaim:
             claimName: adguard-pvc
-        - name: adguard-config
-          emptyDir: {}
-        - name: config-template
-          configMap:
-            name: adguard-config
         - name: tmp
           emptyDir: {}
