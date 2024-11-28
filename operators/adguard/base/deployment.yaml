@@ -66,6 +66,7 @@ spec:
               port: http-initial
             initialDelaySeconds: 30
             periodSeconds: 10
+
           volumeMounts:
             - name: adguard-data
               mountPath: /opt/adguardhome/work
@@ -73,17 +74,23 @@ spec:
               mountPath: /opt/adguardhome/conf
             - name: tmp
               mountPath: /tmp
+            - name: config-template
+              mountPath: /opt/adguardhome/conf/AdGuardHome.yaml
+              subPath: AdGuardHome.yaml
           readinessProbe:
             httpGet:
               path: /
               port: http-initial
             initialDelaySeconds: 15
             periodSeconds: 10
+
       volumes:
         - name: adguard-data
           persistentVolumeClaim:
             claimName: adguard-pvc
         - name: adguard-config
+          emptyDir: {} # Changed from configMap to emptyDir
+        - name: config-template
           configMap:
             name: adguard-config
         - name: tmp
