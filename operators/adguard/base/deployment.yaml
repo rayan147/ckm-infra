@@ -19,21 +19,6 @@ spec:
     spec:
       securityContext:
         fsGroup: 1000
-      initContainers:
-        - name: init-config
-          image: busybox
-          command:
-            [
-              "sh",
-              "-c",
-              "if [ ! -f /opt/adguardhome/conf/AdGuardHome.yaml ]; then cp /tmp/AdGuardHome.yaml /opt/adguardhome/conf/; fi",
-            ]
-          volumeMounts:
-            - name: config-template
-              mountPath: /tmp/AdGuardHome.yaml
-              subPath: AdGuardHome.yaml
-            - name: conf
-              mountPath: /opt/adguardhome/conf
       containers:
         - name: adguard-home
           image: adguard/adguardhome:latest
@@ -69,23 +54,11 @@ spec:
                 - NET_RAW
               drop:
                 - ALL
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http-initial
-            initialDelaySeconds: 30
-            periodSeconds: 10
           volumeMounts:
             - name: work
               mountPath: /opt/adguardhome/work
             - name: conf
               mountPath: /opt/adguardhome/conf
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http-initial
-            initialDelaySeconds: 15
-            periodSeconds: 10
       volumes:
         - name: work
           persistentVolumeClaim:
@@ -93,6 +66,3 @@ spec:
         - name: conf
           persistentVolumeClaim:
             claimName: adguard-conf-pvc
-        - name: config-template
-          configMap:
-            name: adguard-config
