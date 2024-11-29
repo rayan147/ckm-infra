@@ -23,12 +23,6 @@ spec:
         - name: adguard-home
           image: adguard/adguardhome:latest
           imagePullPolicy: IfNotPresent
-          env:
-            - name: AGH_CONFIG
-              valueFrom:
-                configMapKeyRef:
-                  name: adguard-config
-                  key: AdGuardHome.yaml
           ports:
             - containerPort: 53
               name: dns-udp
@@ -66,32 +60,21 @@ spec:
               port: http-initial
             initialDelaySeconds: 30
             periodSeconds: 10
-
           volumeMounts:
-            - name: adguard-data
+            - name: work
               mountPath: /opt/adguardhome/work
-            - name: adguard-config
+            - name: conf
               mountPath: /opt/adguardhome/conf
-            - name: tmp
-              mountPath: /tmp
-            - name: config-template
-              mountPath: /opt/adguardhome/conf/AdGuardHome.yaml
-              subPath: AdGuardHome.yaml
           readinessProbe:
             httpGet:
               path: /
               port: http-initial
             initialDelaySeconds: 15
             periodSeconds: 10
-
       volumes:
-        - name: adguard-data
+        - name: work
           persistentVolumeClaim:
-            claimName: adguard-pvc
-        - name: adguard-config
-          emptyDir: {} # Changed from configMap to emptyDir
-        - name: config-template
-          configMap:
-            name: adguard-config
-        - name: tmp
-          emptyDir: {}
+            claimName: adguard-work-pvc
+        - name: conf
+          persistentVolumeClaim:
+            claimName: adguard-conf-pvc
