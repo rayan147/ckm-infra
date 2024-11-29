@@ -89,10 +89,10 @@ spec:
       volumes:
         - name: work
           persistentVolumeClaim:
-            claimName: work-pvc
+            claimName: adguard-work-pvc
         - name: conf
           persistentVolumeClaim:
-            claimName: conf-pvc
+            claimName: adguard-conf-pvc
         - name: config-template
           configMap:
             name: adguard-config
