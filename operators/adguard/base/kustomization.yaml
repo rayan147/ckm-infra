@@ -3,10 +3,10 @@ kind: Kustomization
 
 namespace: adguard
 resources:
-  - deployment.yaml
-  - service.yaml
-  - configmap.yaml
+  - namespace.yaml
   - pv.yaml
   - pvc.yaml
+  - configmap.yaml
   - secret.yaml
-  - namespace.yaml
+  - service.yaml
+  - deployment.yaml
