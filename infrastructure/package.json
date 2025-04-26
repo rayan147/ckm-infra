@@ -1,0 +1,39 @@
+{
+  "name": "infrastructure",
+  "version": "0.1.0",
+  "bin": {
+    "infrastructure": "bin/infrastructure.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "test": "jest",
+    "cdk": "cdk",
+    "deploy:dev": "TARGET_ENV=dev cdk deploy",
+    "deploy:staging": "TARGET_ENV=staging cdk deploy",
+    "deploy:prod": "TARGET_ENV=prod cdk deploy",
+    "validate:dev": "TARGET_ENV=dev ts-node bin/infrastructure.ts",
+    "validate:staging": "TARGET_ENV=staging ts-node bin/infrastructure.ts",
+    "validate:prod": "TARGET_ENV=prod ts-node bin/infrastructure.ts",
+    "deploy:all": "cdk deploy --all"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "@types/node": "22.7.9",
+    "aws-cdk": "2.171.1",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "ts-node": "^10.9.2",
+    "typescript": "~5.6.3"
+  },
+  "dependencies": {
+    "@aws-sdk/client-kms": "^3.712.0",
+    "@aws-sdk/client-s3": "^3.712.0",
+    "@aws-sdk/client-secrets-manager": "^3.712.0",
+    "@aws-sdk/client-sts": "^3.709.0",
+    "aws-cdk-lib": "2.171.1",
+    "constructs": "^10.4.2",
+    "dotenv": "^16.4.7",
+    "zod": "^3.24.1"
+  }
+}
