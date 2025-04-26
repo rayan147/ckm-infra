@@ -39,7 +39,6 @@ This repository contains the infrastructure configuration for the CKM platform u
 │   ├── cdk.json              # CDK configuration
 │   └── package.json          # Node.js dependencies
 ├── operators/                # Kubernetes operators
-│   ├── adguard/              # AdGuard operator
 │   ├── api/                  # API operator
 │   ├── aws-secrets-provider/ # AWS Secrets provider
 │   ├── homepage/             # Homepage operator
@@ -64,29 +63,34 @@ This repository contains the infrastructure configuration for the CKM platform u
 ## 🚦 Getting Started
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/rayan147/ckm-infra.git
    cd ckm-infra
    ```
 
 2. **Configure AWS credentials**
+
    ```bash
    aws configure
    ```
 
 3. **Install dependencies for infrastructure**
+
    ```bash
    cd infrastructure
    pnpm install
    ```
 
 4. **Deploy infrastructure with CDK**
+
    ```bash
    pnpm cdk synth
    pnpm cdk deploy
    ```
 
 5. **Access your Kubernetes cluster**
+
    ```bash
    # Configure kubectl with cluster access
    aws eks update-kubeconfig --name ckm-dev-cluster --region us-west-2
@@ -96,6 +100,7 @@ This repository contains the infrastructure configuration for the CKM platform u
    ```
 
 6. **Deploy applications with ArgoCD**
+
    ```bash
    # Apply the ArgoCD configuration
    kubectl apply -f argocd/application.yaml
@@ -140,7 +145,6 @@ This repository contains the infrastructure configuration for the CKM platform u
 
 - ArgoCD provides a dashboard for application deployment status
 - AWS CloudWatch for infrastructure monitoring and logs
-- AdGuard for DNS filtering and security
 - Homepage operator provides a central dashboard for services
 - MinIO offers S3-compatible object storage
 - PostgreSQL operator manages database instances and backups

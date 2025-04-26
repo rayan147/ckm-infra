@@ -4,3 +4,7 @@ operators/aws-secrets-provider/base/aws-secret.yaml
 infrastructure/.env*
 *.env
 .env*
+
+# AdGuard files
+argocd/applications/adguard.yaml
+operators/adguard/
