@@ -1,198 +1,154 @@
-## CKM Infrastructure (ckm-infra)
+# CKM Infrastructure
 
-#### This repository contains the GitOps infrastructure setup for the CKM platform using ArgoCD, Kubernetes, and various operators
+![Infrastructure Status](https://img.shields.io/github/workflow/status/rayan147/ckm-infra/Terraform?style=flat-square)
+![Last Commit](https://img.shields.io/github/last-commit/rayan147/ckm-infra?style=flat-square)
+![License](https://img.shields.io/github/license/rayan147/ckm-infra?style=flat-square)
 
-## Architecture Overview
+A modern Infrastructure as Code (IaC) repository for managing cloud resources and Kubernetes deployments for the CKM platform.
 
-### Directory Structure
+## 🚀 Overview
 
-```bash
-ckm-infra/
-├── argocd/
-│   ├── applications/
-│   │   ├── postgres-crds.yaml        # Defines PostgreSQL CRDs
-│   │   ├── postgres-operator.yaml    # Manages PostgreSQL instances
-│   │   ├── postgres-rbac.yaml        # RBAC for Postgres Operator
-│   │   ├── csi-secrets-store.yaml    # Base secrets mounting system
-│   │   ├── aws-secrets-provider.yaml # AWS secrets integration
-│   │   └── api.yaml                  # Application deployment
-│   └── projects/
-│       └── operators.yaml            # Project level settings
-└── operators/
-    ├── postgres-operator/
-    │   ├── base/
-    │   │   ├── crds/                 # Custom Resource Definitions
-    │   │   ├── rbac/                 # Access Control
-    │   │   └── operator/             # Core Operator
-    │   └── overlays/
-    │       └── dev/                  # Environment Specific
-    └── api/
-        └── base/
-            ├── deployment.yaml       # Pod configuration
-            ├── service.yaml          # Network exposure
-            ├── configmap.yaml        # Non-sensitive config
-            └── ingress.yaml         # External Access
-```
+This repository contains all the infrastructure configuration needed to deploy and manage the CKM platform using a GitOps approach. We leverage Terraform for provisioning cloud resources and Kubernetes manifests for application deployments.
 
-### Component Workflow
+## 📋 Features
 
-#### Infrastructure Layer (Deployment Order)
+- **Infrastructure as Code (IaC)**: All infrastructure defined and managed through code
+- **Multi-environment Support**: Configurations for development, staging, and production
+- **Kubernetes Management**: Resources for cluster provisioning and application deployment
+- **CI/CD Integration**: Automated testing and deployment workflows
+- **Security Best Practices**: Least privilege access, secret management, and compliance controls
 
-1. CSI Secrets Store (Base)
-2. AWS Secrets Provider
-3. PostgreSQL CRDs
-4. PostgreSQL RBAC
-5. PostgreSQL operator
-6. API Deployment
-
-#### Data Flow
-
-```mermaid
-graph TD
-    A[AWS Secrets Manager] --> B[CSI Driver + AWS Provider]
-    B --> C[API Pods]
-    C <--> D[PostgreSQL Operator]
-    D --> E[PostgreSQL Pods]
-```
-
-## Installation Steps
-
-#### 1. Prerequisites
-
-```bash
-# Enable required MicroK8s addons
-# choose the ip range base on your Network
-microk8s enable storage dns ingress metallb:10.0.0.30-10.0.0.40
-```
-
-#### 2. ArgoCD setup
-
-```bash
-# Install ArgoCD
-kubectl create namespace argocd
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-
-# Access ArgoCD
-kubectl port-forward svc/argocd-server -n argocd 8080:443
-```
-
-#### 3. Deploy Components
-
-```bash
-# Deploy CSI Driver
-argocd app create csi-secrets-store \
-  --repo https://kubernetes-sigs.github.io/secrets-store-csi-driver/charts \
-  --helm-chart secrets-store-csi-driver \
-  --revision 1.3.4 \
-  --dest-server https://kubernetes.default.svc \
-  --dest-namespace kube-system \
-  --sync-policy automated
-
-# Deploy AWS Provider
-argocd app create aws-secrets-provider \
-  --repo https://aws.github.io/secrets-store-csi-driver-provider-aws \
-  --helm-chart secrets-store-csi-driver-provider-aws \
-  --revision 0.3.4 \
-  --dest-server https://kubernetes.default.svc \
-  --dest-namespace kube-system \
-  --sync-policy automated
-
-# Deploy PostgreSQL Components
-argocd app create postgres-crds \
-  --repo https://github.com/yourusername/ckm-infra.git \
-  --path operators/postgres-operator/base/crds \
-  --dest-server https://kubernetes.default.svc \
-  --dest-namespace postgres-operator \
-  --sync-policy automated
-
-# Wait for CRDs to sync
-argocd app wait postgres-crds
-
-# Create RBAC application
-argocd app create postgres-rbac \
-  --repo https://github.com/rayan147/ckm-infra.git \
-  --path operators/postgres-operator/base/rbac \
-  --dest-server https://kubernetes.default.svc \
-  --dest-namespace postgres-operator \
-  --sync-policy automated \
-  --sync-option CreateNamespace=true
-
-# Wait for RBAC to sync
-argocd app wait postgres-rbac
-
-# Finally create the operator application
-argocd app create postgres-operator \
-  --repo https://github.com/rayan147/ckm-infra.git \
-  --path operators/postgres-operator/overlays/dev \
-  --dest-server https://kubernetes.default.svc \
-  --dest-namespace postgres-operator \
-  --sync-policy automated
-
-# Monitor the status
-argocd app get postgres-operator
-
-
-# Deploy API 
-argocd app create api \
-  --repo https://github.com/rayan147/ckm-infra.git \
-  --path operators/api/base \
-  --dest-server https://kubernetes.default.svc \
-  --dest-namespace ckm \
-  --sync-policy automated \
-  --sync-option CreateNamespace=true
-
-# Create Tailscale application in ArgoCD
-argocd app create tailscale \
-  --repo https://github.com/rayan147/ckm-infra.git \
-  --path operators/tailscale/base \
-  --dest-server https://kubernetes.default.svc \
-  --dest-namespace tailscale \
-  --sync-policy automated \
-  --sync-option CreateNamespace=true
-
-# Wait for the application to sync
-argocd app wait tailscale
-
-# Check the status
-argocd app get tailscale
-
-argocd app create adguard \
-  --repo https://github.com/rayan147/ckm-infra.git \
-  --path operators/adguard/base \
-  --dest-server https://kubernetes.default.svc \
-  --dest-namespace adguard \
-  --sync-policy automated \
-  --sync-option CreateNamespace=true
-  
+## 📁 Repository Structure
 
 ```
+.
+├── terraform/                 # Terraform configurations
+│   ├── environments/          # Environment-specific configurations
+│   │   ├── dev/               # Development environment
+│   │   ├── staging/           # Staging environment
+│   │   └── prod/              # Production environment
+│   ├── modules/               # Reusable Terraform modules
+│   │   ├── networking/        # VPC, subnets, security groups
+│   │   ├── kubernetes/        # Kubernetes cluster configuration
+│   │   ├── databases/         # Database resources
+│   │   └── monitoring/        # Monitoring and logging resources
+│   └── providers/             # Provider-specific configurations
+├── kubernetes/                # Kubernetes manifests
+│   ├── namespaces/            # Namespace definitions
+│   ├── deployments/           # Application deployments
+│   ├── services/              # Service definitions
+│   └── config/                # ConfigMaps and Secrets
+├── scripts/                   # Utility scripts
+├── docs/                      # Documentation
+└── .github/                   # GitHub workflows and actions
+```
 
-## Security Components
+## 🛠️ Prerequisites
 
-### CSI Driver and AWS Provider
+- [Terraform](https://www.terraform.io/) (v1.0+)
+- [kubectl](https://kubernetes.io/docs/tasks/tools/) (latest stable)
+- [AWS CLI](https://aws.amazon.com/cli/) or other cloud provider CLI
+- Access credentials for your cloud provider
+- [Pre-commit](https://pre-commit.com/) for code validation
 
-- CSI Driver: Base infrastructure for mounting secrets
-- AWS Provider: Handles AWS Secrets Manager integration
-- Together they enable secure secret management
+## 🚦 Getting Started
 
-### PostgreSQL Security
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/rayan147/ckm-infra.git
+   cd ckm-infra
+   ```
 
-- RBAC configurations for database access
-- Operator manages database lifecycle
-- Secure connection handling
+2. **Set up pre-commit hooks**
+   ```bash
+   pre-commit install
+   ```
 
-### Application deployment
+3. **Configure your cloud provider credentials**
+   ```bash
+   # For AWS
+   aws configure
+   
+   # For other providers, follow their specific instructions
+   ```
 
-#### The API deployment includes
+4. **Initialize Terraform**
+   ```bash
+   cd terraform/environments/dev
+   terraform init
+   ```
 
-- Resource limits and requests
-- Health checks (liveness and readiness probes
-- Secret mounting configurations
-- Service and ingress definitions
+5. **Plan and apply changes**
+   ```bash
+   terraform plan -out=tfplan
+   terraform apply tfplan
+   ```
 
-### Notes
+6. **Access your Kubernetes cluster**
+   ```bash
+   # Configure kubectl with cluster access
+   aws eks update-kubeconfig --name ckm-dev-cluster --region us-west-2
+   
+   # Verify connection
+   kubectl get nodes
+   ```
 
-- All sensitive configurations are managed through AWS Secrets Manager
-- ArgoCD handles GitOps workflow
-- PostgreSQL operator manages database instances
-- Infrastructure is version controlled and automated
+## 🔄 Workflow
+
+1. **Development**
+   - Create a new branch for your changes
+   - Implement your infrastructure modifications
+   - Test locally using `terraform plan`
+
+2. **Code Review**
+   - Open a Pull Request against the main branch
+   - Automated checks will validate your changes
+   - Peer review by team members
+
+3. **Deployment**
+   - Merged changes trigger the CI/CD pipeline
+   - Terraform changes are applied automatically
+   - Environment-specific approvals may be required
+
+## 🔒 Security
+
+- All secrets are managed using a secure vault system
+- Infrastructure follows the principle of least privilege
+- Regular security scans are performed on all resources
+- Access to production environments is strictly controlled
+
+## 📊 Monitoring
+
+Our infrastructure includes comprehensive monitoring and alerting:
+
+- Resource utilization metrics
+- Application performance monitoring
+- Cost tracking and optimization
+- Automated incident response
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📚 Documentation
+
+Detailed documentation is available in the [docs](./docs) directory, including:
+
+- Architecture diagrams
+- Setup guides
+- Troubleshooting tips
+- Best practices
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- [Terraform](https://www.terraform.io/) for infrastructure provisioning
+- [Kubernetes](https://kubernetes.io/) for container orchestration
+- The amazing open-source community
