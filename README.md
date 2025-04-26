@@ -8,48 +8,58 @@ A modern Infrastructure as Code (IaC) repository for managing cloud resources an
 
 ## 🚀 Overview
 
-This repository contains all the infrastructure configuration needed to deploy and manage the CKM platform using a GitOps approach. We leverage Terraform for provisioning cloud resources and Kubernetes manifests for application deployments.
+This repository contains the infrastructure configuration for the CKM platform using a GitOps approach. We leverage AWS CDK for cloud infrastructure provisioning and ArgoCD with Kustomize for Kubernetes application deployments.
 
 ## 📋 Features
 
-- **Infrastructure as Code (IaC)**: All infrastructure defined and managed through code
-- **Multi-environment Support**: Configurations for development, staging, and production
-- **Kubernetes Management**: Resources for cluster provisioning and application deployment
-- **CI/CD Integration**: Automated testing and deployment workflows
-- **Security Best Practices**: Least privilege access, secret management, and compliance controls
+- **Infrastructure as Code (IaC)**: All infrastructure defined and managed through TypeScript CDK code
+- **Multi-environment Support**: Configurations for development and production environments
+- **GitOps Workflow**: ArgoCD-driven deployments with automatic synchronization
+- **Kubernetes Operators**: Ready-to-use operators for common services (PostgreSQL, MinIO, etc.)
+- **AWS Integration**: Native integration with AWS services and secrets management
+- **Kustomize Overlays**: Environment-specific customizations with a DRY approach
 
 ## 📁 Repository Structure
 
 ```
 .
-├── terraform/                 # Terraform configurations
-│   ├── environments/          # Environment-specific configurations
-│   │   ├── dev/               # Development environment
-│   │   ├── staging/           # Staging environment
-│   │   └── prod/              # Production environment
-│   ├── modules/               # Reusable Terraform modules
-│   │   ├── networking/        # VPC, subnets, security groups
-│   │   ├── kubernetes/        # Kubernetes cluster configuration
-│   │   ├── databases/         # Database resources
-│   │   └── monitoring/        # Monitoring and logging resources
-│   └── providers/             # Provider-specific configurations
-├── kubernetes/                # Kubernetes manifests
-│   ├── namespaces/            # Namespace definitions
-│   ├── deployments/           # Application deployments
-│   ├── services/              # Service definitions
-│   └── config/                # ConfigMaps and Secrets
-├── scripts/                   # Utility scripts
-├── docs/                      # Documentation
-└── .github/                   # GitHub workflows and actions
+├── argocd/                   # ArgoCD configuration
+│   ├── application.yaml      # Main ArgoCD application definition
+│   ├── applications/         # Application-specific configurations
+│   └── projects/             # ArgoCD project definitions
+├── base/                     # Base Kubernetes resources
+│   ├── deployment.yaml       # Base deployment configuration
+│   ├── kustomization.yaml    # Kustomize base configuration
+│   └── service.yaml          # Base service configuration
+├── infrastructure/           # AWS CDK infrastructure code
+│   ├── bin/                  # CDK entry points
+│   ├── lib/                  # CDK constructs and stacks
+│   ├── src/                  # Source code
+│   ├── test/                 # Tests for infrastructure
+│   ├── cdk.json              # CDK configuration
+│   └── package.json          # Node.js dependencies
+├── operators/                # Kubernetes operators
+│   ├── adguard/              # AdGuard operator
+│   ├── api/                  # API operator
+│   ├── aws-secrets-provider/ # AWS Secrets provider
+│   ├── homepage/             # Homepage operator
+│   ├── minio/                # MinIO operator
+│   ├── postgres-operator/    # PostgreSQL operator
+│   └── tailscale/            # Tailscale operator
+└── overlays/                 # Environment-specific overlays
+    ├── dev/                  # Development environment
+    └── prod/                 # Production environment
 ```
 
 ## 🛠️ Prerequisites
 
-- [Terraform](https://www.terraform.io/) (v1.0+)
+- [AWS CDK](https://aws.amazon.com/cdk/) (latest version)
+- [Node.js](https://nodejs.org/) (v16+)
+- [pnpm](https://pnpm.io/) (for package management)
 - [kubectl](https://kubernetes.io/docs/tasks/tools/) (latest stable)
-- [AWS CLI](https://aws.amazon.com/cli/) or other cloud provider CLI
-- Access credentials for your cloud provider
-- [Pre-commit](https://pre-commit.com/) for code validation
+- [AWS CLI](https://aws.amazon.com/cli/)
+- [kustomize](https://kustomize.io/) (latest stable)
+- [ArgoCD CLI](https://argo-cd.readthedocs.io/en/stable/cli_installation/) (optional)
 
 ## 🚦 Getting Started
 
@@ -59,32 +69,24 @@ This repository contains all the infrastructure configuration needed to deploy a
    cd ckm-infra
    ```
 
-2. **Set up pre-commit hooks**
+2. **Configure AWS credentials**
    ```bash
-   pre-commit install
-   ```
-
-3. **Configure your cloud provider credentials**
-   ```bash
-   # For AWS
    aws configure
-   
-   # For other providers, follow their specific instructions
    ```
 
-4. **Initialize Terraform**
+3. **Install dependencies for infrastructure**
    ```bash
-   cd terraform/environments/dev
-   terraform init
+   cd infrastructure
+   pnpm install
    ```
 
-5. **Plan and apply changes**
+4. **Deploy infrastructure with CDK**
    ```bash
-   terraform plan -out=tfplan
-   terraform apply tfplan
+   pnpm cdk synth
+   pnpm cdk deploy
    ```
 
-6. **Access your Kubernetes cluster**
+5. **Access your Kubernetes cluster**
    ```bash
    # Configure kubectl with cluster access
    aws eks update-kubeconfig --name ckm-dev-cluster --region us-west-2
@@ -93,38 +95,55 @@ This repository contains all the infrastructure configuration needed to deploy a
    kubectl get nodes
    ```
 
+6. **Deploy applications with ArgoCD**
+   ```bash
+   # Apply the ArgoCD configuration
+   kubectl apply -f argocd/application.yaml
+   
+   # Monitor deployment status
+   kubectl get applications -n argocd
+   ```
+
 ## 🔄 Workflow
 
-1. **Development**
-   - Create a new branch for your changes
-   - Implement your infrastructure modifications
-   - Test locally using `terraform plan`
+1. **Infrastructure Development**
+   - Create a new branch for your infrastructure changes
+   - Implement your CDK modifications
+   - Test locally using `cdk diff` and `cdk synth`
+   - For complex changes, use `cdk deploy --hotswap` for faster testing
 
-2. **Code Review**
+2. **Kubernetes Application Development**
+   - Modify base resources or create new ones as needed
+   - Test changes with kustomize: `kustomize build overlays/dev`
+   - For local testing, use `kubectl apply -k overlays/dev`
+
+3. **Code Review**
    - Open a Pull Request against the main branch
    - Automated checks will validate your changes
    - Peer review by team members
 
-3. **Deployment**
+4. **Deployment**
    - Merged changes trigger the CI/CD pipeline
-   - Terraform changes are applied automatically
-   - Environment-specific approvals may be required
+   - For infrastructure: CDK changes are deployed to AWS
+   - For applications: ArgoCD automatically detects and applies changes
+   - Production deployments require manual approval
 
 ## 🔒 Security
 
-- All secrets are managed using a secure vault system
-- Infrastructure follows the principle of least privilege
-- Regular security scans are performed on all resources
-- Access to production environments is strictly controlled
+- Secrets are managed using AWS Secrets Manager via the aws-secrets-provider
+- Infrastructure follows AWS's principle of least privilege
+- Production environment is isolated with restricted access
+- Security scans are performed on container images and code
+- Tailscale provides secure network access to cluster resources
 
-## 📊 Monitoring
+## 📊 Management & Monitoring
 
-Our infrastructure includes comprehensive monitoring and alerting:
-
-- Resource utilization metrics
-- Application performance monitoring
-- Cost tracking and optimization
-- Automated incident response
+- ArgoCD provides a dashboard for application deployment status
+- AWS CloudWatch for infrastructure monitoring and logs
+- AdGuard for DNS filtering and security
+- Homepage operator provides a central dashboard for services
+- MinIO offers S3-compatible object storage
+- PostgreSQL operator manages database instances and backups
 
 ## 🤝 Contributing
 
