@@ -168,6 +168,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- [Terraform](https://www.terraform.io/) for infrastructure provisioning
 - [Kubernetes](https://kubernetes.io/) for container orchestration
 - The amazing open-source community
