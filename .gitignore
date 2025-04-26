@@ -1,2 +1,6 @@
 operators/adguard/base/users.yaml
 .debug
+operators/aws-secrets-provider/base/aws-secret.yaml
+infrastructure/.env*
+*.env
+.env*
